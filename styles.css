@@ -18,9 +18,7 @@
 	background: #fff;
 	font-size: 50px;
 }
-table {
-	margin: 
-}
+
 .heading {
 	color: grey;
 	font-size: 130%;
@@ -85,4 +83,10 @@ input[type=button]:hover {
 .is-depressed-with-shadows{
 	color: #fff !important;
 	background: blue !important;
+}
+@media only screen and (max-width: 480px) {
+	.calculator{
+		width: 100%;
+		margin: 0 auto;
+	}
 }
