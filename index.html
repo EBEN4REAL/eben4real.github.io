@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Js Calculator</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+
+	<table class="calculator">
+		<!-- This is the head section of the calculator -->
+		<tr >
+			<tr>
+				<td class="heading">
+					Eben Simple Math Calculator <span style='font-size:25px;'>&#128525;</span>
+				</td>
+			</tr>
+			<td>
+				<input class="display" type="text" id="input" placeholder="0" readonly="readonly" value="0">
+			</td>
+		</tr>
+		<br>
+		<!-- Buttons section of nthe calculator -->
+		<tr class="keys">
+			<td>
+				<input type="button" value="AC" id="clear-screen" data-action="clear">
+				<input type="button" value="&#247;" data-action="divide">
+				<input type="button" value=" X " data-action="multiply">
+				<input type="button" value=" &#8592; "  id="backspace" data-action="backspace">
+
+
+				<input type="button" value="1" class="btn-1">
+				<input type="button" value="2" >
+				<input type="button" value="3">
+				<input type="button" value=" + " data-action="add">
+				<br>
+				<input type="button" value="4" >
+				<input type="button" value="5" >
+				<input type="button" value="6" >
+				<input type="button" value=" - "  data-action="subtract">
+				<br>
+				<input type="button" value="7" >
+				<input type="button" value="8" >
+				<input type="button" value="9" >
+				<input type="button" value=" % "  data-action="percentage">
+				<br>
+				<input type="button" value="+/-" data-action="plus-minus">
+				<input type="button" value="0" >
+				<input type="button" value=" . "  data-action="decimal">
+				<input type="button" value=" = "  id="equalsBtn" data-action="calculate">
+			</td>
+		</tr>
+	</table>
+
+
+<script type="text/javascript">
+	const keys = document.querySelector('.keys');
+	 
+
+	let appState = {
+		concatVals: false,
+		operatorKey: ''
+	}
+	
+
+	keys.addEventListener('click' , (e) => {
+		const display = document.querySelector('.display');
+		const displayedNum = document.querySelector('.display').value;
+		const calculator = document.querySelector('.calculator');
+		const key = e.target;
+		const action = key.dataset.action;
+		const keyContent = key.value;
+
+		if(action === 'clear') {
+			display.value = '0';
+			appState.operatorKey = '';
+			calculator.dataset.previousKeyType = 'clear';
+		}
+
+		if(action === 'percentage'){
+			const percentNum = displayedNum * 0.01;
+			display.value = percentNum;
+		}
+
+		if (action === 'backspace') {
+			newDisplay = displayedNum.substring(0,displayedNum.length - 1 );
+			display.value = newDisplay;
+			if(display.value === ''){
+				display.value = '0';
+			}
+			console.log(newDisplay)
+		}
+		if(action === 'plus-minus'){
+			newDisplay = displayedNum * -1 ;
+			display.value = newDisplay;
+		}
+
+		const calculate = (firstvalue, operator, secondValue) => {
+			let result = '';
+
+			if(operator === 'add'){
+				result =  parseFloat(firstvalue)  + parseFloat(secondValue);
+			}else if(operator === 'subtract'){
+				result =  parseFloat(firstvalue)  - parseFloat(secondValue);
+			}else if(operator === 'multiply'){
+				result =  parseFloat(firstvalue)  * parseFloat(secondValue);
+			}else if(operator === 'divide'){
+				result =  parseFloat(firstvalue)  / parseFloat(secondValue);
+			}
+
+			return result;
+		}
+		if(action === 'calculate'){
+			let firstvalue = calculator.dataset.firstvalue;
+			const operator = calculator.dataset.operator;
+			let secondValue = displayedNum;
+
+
+			if(firstvalue) {
+				if(calculator.dataset.previousKeyType === 'calculate') {
+					firstvalue = displayedNum;
+					secondValue = calculator.dataset.newSecondValue;
+				}
+			}
+			
+			key.classList.add('calculateBtn');
+
+			display.value = calculate(firstvalue, operator, secondValue);
+
+			calculator.dataset.newSecondValue = secondValue;
+
+			calculator.dataset.previousKeyType = 'calculate';
+		}
+		if(displayedNum.length > 0){
+			document.getElementById("equalsBtn").classList.add('calculateBtn');
+		}
+		if(action !== 'clear'){
+			const clearButton = calculator.querySelector(`[data-action="clear"]`);
+			clearButton.value = 'CE';
+		}
+		if(action === 'clear'){
+			if(key.value === 'AC'){
+				calculator.dataset.firstvalue = '';
+				calculator.dataset.newSecondValue = '';
+				appState.operatorKey = '';
+				appState.concatVals = false;
+				calculator.dataset.previousKeyType = '';
+			}else{
+				key.value = 'AC';
+			}
+			display.value = '0';
+
+			calculator.dataset.previousKeyType = 'clear';
+		}
+		if(!action) {
+			if(displayedNum === "0" || calculator.dataset.previousKeyType === 'calculate'){
+				display.value = keyContent;
+			}
+			if(displayedNum !== "0" || calculator.dataset.previousKeyType === 'calculate'){
+				display.value = displayedNum + keyContent;
+			}
+			if(appState.operatorKey !== ''){
+				Array.from(key.parentNode.children)
+					.forEach(key => {
+						key.classList.remove('is-depressed');
+					})
+				display.value = keyContent;
+			}
+
+
+			appState.operatorKey = '';
+
+			calculator.dataset.previousKeyType = 'number';
+			
+		}
+		
+		if(action === 'decimal'){
+			if(!displayedNum.includes('.')){
+				appState.concatVals = true;
+				display.value = displayedNum + '.';
+
+				
+			}else if(appState.operator !== '' || calculator.dataset.previousKeyType === 'calculate'){
+				display.value = '0.';
+			}
+
+			calculator.dataset.previousKeyType = 'decimal';
+		}
+		if(action === 'divide' || action === 'multiply' || action === 'add' || action === 'subtract'){
+			if(displayedNum.charAt(displayedNum.length - 1) === '.'){
+				return;
+			}else{
+				const firstvalue = calculator.dataset.firstvalue;
+				const secondValue = displayedNum;
+				const operator = calculator.dataset.operator;
+
+				if(calculator.dataset.previousKeyType === 'calculate'){
+					calculator.dataset.firstvalue = displayedNum;
+					calculator.dataset.secondValue = keyContent;
+					appState.operatorKey = operator;
+				}
+
+				if(firstvalue && operator && appState.operatorKey === ''){
+					const calcValue = calculate(firstvalue, operator, secondValue);
+					display.value = calcValue;
+					calculator.dataset.firstvalue = calcValue;
+				}else{
+					calculator.dataset.firstvalue = displayedNum;
+				}
+				if(appState.operatorKey === action){
+					key.classList.add('is-depressed-with-shadows');
+					return;
+				}
+				if(appState.operatorKey !== ''){
+					key.classList.remove('is-depressed');
+				}
+
+				key.classList.add('is-depressed');
+
+				calculator.dataset.previousKeyType = 'operator';
+				calculator.dataset.operator = action;
+
+				appState.operatorKey = action;
+				appState.concatVals = false;
+
+				console.log(calculator.dataset.operator);
+			}
+			
+		}
+
+	})
+</script>
+</body>
+</html>
